@@ -2,10 +2,10 @@ import logging
 import re
 import requests
 import simplejson
-import thread
+import _thread
 import threading
 import time
-import urllib
+import urllib.request, urllib.parse, urllib.error
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +60,7 @@ class MachineData(object):
         if not async:
             return self.__make_request(function, path, host)
         else:
-            thread.start_new_thread(self.__make_request,
+            _thread.start_new_thread(self.__make_request,
                                     (function, path, host))
 
     def __make_request(self, function, path, host):
@@ -109,7 +109,7 @@ class MachineData(object):
 
         task_data = {}
         new_tasks = {}
-        for key, value in data.iteritems():
+        for key, value in data.items():
             try:
                 task_name, metric = key.split('-')
             except:
@@ -122,7 +122,7 @@ class MachineData(object):
 
         # Update all tasks in parallel
         update_threads = []
-        for task_name in task_data.keys():
+        for task_name in list(task_data.keys()):
             task_dict = task_data[task_name]
             new_tasks[task_dict['name']] = task_dict
             if task_dict['running']:
@@ -133,7 +133,7 @@ class MachineData(object):
 
         while update_threads:
             for thread in update_threads:
-                if not thread.isAlive():
+                if not _thread.isAlive():
                     update_threads.remove(thread)
             time.sleep(0.0001)
 
@@ -167,7 +167,7 @@ class MachineData(object):
     def add_task(self, config):
         params = '&'.join(
             "%s=%s" % (
-                k, urllib.quote_plus(str(v))) for k, v in config.items())
+                k, urllib.parse.quote_plus(str(v))) for k, v in list(config.items()))
         val = self._make_request(requests.get,
                                  path="add_task?%s" % params)
         if val:
@@ -179,7 +179,7 @@ class MachineData(object):
         if isinstance(task, str):
             task = self.tasks[task]
 
-        tid = urllib.quote(task['name'])
+        tid = urllib.parse.quote(task['name'])
         val = self._make_request(
             requests.get,
             path="remove_task?task_name=%s" % tid)
@@ -193,7 +193,7 @@ class MachineData(object):
         if isinstance(task, str):
             task = self.tasks[task]
 
-        tid = urllib.quote(task['name'])
+        tid = urllib.parse.quote(task['name'])
         val = self._make_request(
             requests.get,
             path="start_task?task_name=%s" % tid,
@@ -208,7 +208,7 @@ class MachineData(object):
         if isinstance(task, str):
             task = self.tasks[task]
 
-        tid = urllib.quote(task['name'])
+        tid = urllib.parse.quote(task['name'])
         val = self._make_request(
             requests.get,
             path="restart_task?task_name=%s" % tid,
@@ -223,7 +223,7 @@ class MachineData(object):
         if isinstance(task, str):
             task = self.tasks[task]
 
-        tid = urllib.quote(task['name'])
+        tid = urllib.parse.quote(task['name'])
         val = self._make_request(
             requests.get,
             path="stop_task?task_name=%s" % tid,
@@ -243,7 +243,7 @@ class MachineData(object):
     def get_task_logs(self, task):
         sitter_logs = self.get_sitter_logs()
         logs = {}
-        for logname, logfile in sitter_logs.items():
+        for logname, logfile in list(sitter_logs.items()):
             if task['name'] in logname:
                 logs[logname] = logfile
         try:
@@ -271,6 +271,6 @@ class MachineData(object):
 if __name__ == '__main__':
     d = MachineData("localhost", 40000)
     d.reload()
-    print d.tasks
+    print(d.tasks)
     task = d.tasks['REX (Remote Extractor)']
-    print d.get_task_logs(task)
+    print(d.get_task_logs(task))

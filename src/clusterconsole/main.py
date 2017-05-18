@@ -47,7 +47,7 @@ class ClusterManagementScreen(MachineManagementScreen):
             for job in self.cluster_data.jobs:
                 table.add_row(
                     [job.name,
-                     sum([len(v) for v in job.fill_machines.values()]),
+                     sum([len(v) for v in list(job.fill_machines.values())]),
                      job.task_configuration['command']])
 
                 option = MenuOption(
@@ -134,8 +134,8 @@ class ClusterManagementScreen(MachineManagementScreen):
             task['monitoring'],
             'stdout',
             task['num_task_starts'] - 1))
-        print requests.get(stdout).content
-        raw_input()
+        print(requests.get(stdout).content)
+        input()
 
 
 def main(sys_args=None):
@@ -165,7 +165,7 @@ def main(sys_args=None):
 
     try:
         if not cluster_data.url:
-            print "Couldn't find a running cluster sitter!"
+            print("Couldn't find a running cluster sitter!")
             return
 
         screen.run()

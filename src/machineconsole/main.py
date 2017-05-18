@@ -4,7 +4,7 @@ import subprocess
 import sys
 
 from datetime import datetime
-from menu import MenuFactory, MenuOption, MenuChanger, Table
+from .menu import MenuFactory, MenuOption, MenuChanger, Table
 from sittercommon.machinedata import MachineData
 from sittercommon.utils import strip_html
 
@@ -115,7 +115,7 @@ class MachineManagementScreen(ManagementScreen):
         running = []
         not_running = []
         not_running_lines = []
-        for name, task in self.machine_data.tasks.items():
+        for name, task in list(self.machine_data.tasks.items()):
             if task['running']:
                 running.append((name, task))
             else:
@@ -243,7 +243,7 @@ class MachineManagementScreen(ManagementScreen):
             action=lambda: self.change_menu('mainmenu'),
             hotkey="*")
 
-        lognames = logs.keys()
+        lognames = list(logs.keys())
         lognames.sort()
 
         for logname in lognames:
@@ -294,7 +294,7 @@ def main():
     try:
 
         if not MACHINE_DATA.url:
-            print "Couldn't find a running machine sitter!"
+            print("Couldn't find a running machine sitter!")
             return
 
         SCREEN.run()

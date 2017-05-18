@@ -7,10 +7,10 @@ import simplejson
 import sys
 import threading
 import tenjin
-import urlparse
+import urllib.parse
 import zlib
-import SocketServer
-import BaseHTTPServer
+import socketserver
+import http.server
 from pkg_resources import resource_filename
 
 # A weird requirement from tenjin to have this
@@ -40,7 +40,7 @@ def file_process(cmd, filename, num_lines):
     return data
 
 
-class HTTPMonitorHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+class HTTPMonitorHandler(http.server.BaseHTTPRequestHandler):
 
     def __init__(self, monitor, new_handlers, *args, **kwargs):
         self.monitor = monitor
@@ -71,7 +71,7 @@ class HTTPMonitorHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         tenjin.Engine.cache = tenjin.MemoryCacheStorage()
         self.engine = tenjin.Engine(path=paths)
 
-        BaseHTTPServer.BaseHTTPRequestHandler.__init__(self, *args, **kwargs)
+        http.server.BaseHTTPRequestHandler.__init__(self, *args, **kwargs)
 
     def _usage(self, _):
         output = """Invalid Path Requests.  Options:<br><ul>"""
@@ -80,7 +80,7 @@ class HTTPMonitorHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                                                  self.handlers,
                                                  'name': sys.argv[0]})
 
-        for handler in self.handlers.keys():
+        for handler in list(self.handlers.keys()):
             output += "<li><a href='%s'>%s</a></li>" % (handler, handler)
         output += "</ul></body></html>"
         return output
@@ -114,7 +114,7 @@ class HTTPMonitorHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
     def _get_logs(self, args):
         logfiles = self.monitor.get_logs()
-        for k, v in logfiles.items():
+        for k, v in list(logfiles.items()):
             size = 0
             try:
                 size = float(os.stat(v).st_size) / 1024
@@ -161,15 +161,15 @@ class HTTPMonitorHandler(BaseHTTPServer.BaseHTTPRequestHandler):
                 output = "Invalid Format"
         else:
             seperator = "\n"
-            for key, value in data.items():
+            for key, value in list(data.items()):
                 output += "%s=%s%s" % (key, value, seperator)
 
         return output
 
     def do_GET(self):
-        urldata = urlparse.urlparse(self.path)
-        array_args = urlparse.parse_qs(urldata.query)
-        args = dict([(k, v[0]) for k, v in array_args.items()])
+        urldata = urllib.parse.urlparse(self.path)
+        array_args = urllib.parse.parse_qs(urldata.query)
+        args = dict([(k, v[0]) for k, v in list(array_args.items())])
 
         if not urldata.path in self.handlers:
             self.wfile.write(self._usage(args))
@@ -197,7 +197,7 @@ class HTTPMonitorHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         return
 
     def do_POST(self):
-        urldata = urlparse.urlparse(self.path)
+        urldata = urllib.parse.urlparse(self.path)
         ctype, pdict = cgi.parse_header(self.headers.getheader('content-type'))
         if ctype == 'application/x-www-form-urlencoded':
             length = int(self.headers.getheader('content-length'))
@@ -224,7 +224,7 @@ class HTTPMonitorHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         return
 
 
-class ThreadedTCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
+class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
     pass
 
 

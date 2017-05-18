@@ -4,9 +4,9 @@ import threading
 import time
 from datetime import datetime, timedelta
 
-from deploymentrecipe import MachineSitterRecipe
-from monitoredmachine import MonitoredMachine
-from eventmanager import ClusterEventManager
+from .deploymentrecipe import MachineSitterRecipe
+from .monitoredmachine import MonitoredMachine
+from .eventmanager import ClusterEventManager
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -29,7 +29,7 @@ class StateMachine(object):
         self.last_state = self.state
         self.state = new_state
 
-    def next(self):
+    def __next__(self):
         self.set_state(self.state + 1)
 
     def __str__(self):
@@ -191,18 +191,18 @@ class JobFiller(object):
             new_machine_count = self.num_cores - len(self.machines)
             # Then spin some up!
             if self.launch_machines(new_machine_count):
-                self.state.next()
+                next(self.state)
             else:
                 logger.warn(
                     "Couldn't launch machines for %s?" % self.job.name)
         else:
-            self.state.next()
+            next(self.state)
 
     def ensure_dns(self, do_basename=False):
         basename = "%s.%s" % (self.zone, self.job.dns_basename)
         provider = self.job.sitter.dns_provider
         if not self.job.dns_basename or not provider:
-            self.state.next()
+            next(self.state)
             return
 
         num_machines_total = self.job.get_num_required_machines_in_zone(
@@ -284,7 +284,7 @@ class JobFiller(object):
                             "Couldn't assign DNS for %s -> %s" % (
                             ip, basename))
 
-        self.state.next()
+        next(self.state)
 
     def deploy_monitoring_code(self):
         # TODO Parallelize this somehow
@@ -297,7 +297,7 @@ class JobFiller(object):
 
             self._do_recipe_deployment(2, 3, machine,
                                        recipe)
-        self.state.next()
+        next(self.state)
 
     def _do_recipe_deployment(self, old_state,
                               new_state,
@@ -351,11 +351,11 @@ class JobFiller(object):
                                            machine,
                                            recipe)
 
-        self.state.next()
+        next(self.state)
 
     def reboot_dependent_jobs(self):
         if not self.reboot_task:
-            self.state.next()
+            next(self.state)
             return
 
         jobs = self.job.find_dependent_jobs()
@@ -366,7 +366,7 @@ class JobFiller(object):
                     logger.info("Rebooting %s" % job.name)
                     machine.restart_task(job)
 
-        self.state.next()
+        next(self.state)
 
     def launch_tasks(self):
         # TODO Parallelize this somehow
@@ -401,7 +401,7 @@ class JobFiller(object):
                         "Tried to start %s on %s but failed?" % (
                             self.job.name, str(machine)))
 
-        self.state.next()
+        next(self.state)
 
     def add_to_monitoring(self):
         sitter = self.job.sitter
@@ -441,7 +441,7 @@ class JobFiller(object):
                         "Found '%s' on '%s', good to go!" %
                         (self.job.name, machine))
 
-        self.state.next()
+        next(self.state)
 
     def launch_machines(self, new_machine_count):
         provider = self.job.sitter.state.get_zone_provider(self.zone)

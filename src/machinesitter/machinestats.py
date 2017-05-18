@@ -7,7 +7,7 @@ class MachineStats(StatsCollector):
     def get_live_data(self):
         self.update_hostname()
         data = {}
-        for task_name, task in self.harness.tasks.items():
+        for task_name, task in list(self.harness.tasks.items()):
             running = bool(task.is_running())
             data["%s-running" % task.name] = running
             if not running:
@@ -58,7 +58,7 @@ class MachineStats(StatsCollector):
         data['task_sitter_starting_port'] = self.harness.task_sitter_starting_port
         data['machine_sitter_starting_port'] = self.harness.machine_sitter_starting_port
         data['task_definition_file'] = self.harness.task_definition_file
-        for task_name, task in self.harness.tasks.items():
+        for task_name, task in list(self.harness.tasks.items()):
             data["%s-name" % task.name] = task.name
             data["%s-command" % task.name] = task.command
 

@@ -3,7 +3,7 @@ import random
 import simplejson
 import time
 import unittest
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 import tasksitter.main as main
 
@@ -12,7 +12,7 @@ class HTTPMonitoringTests(unittest.TestCase):
 
     def start_http_server(self, args):
         self.port = 1024 + int(10000 * random.random())
-        print "Port %s Chosen" % self.port
+        print("Port %s Chosen" % self.port)
         args.append("--http-monitoring")
         args.append("--http-monitoring-port=%s" % self.port)
         self.stats, self.httpd, self.harness = main.main(
@@ -29,7 +29,7 @@ class HTTPMonitoringTests(unittest.TestCase):
     def make_call(self, url):
         data = None
         try:
-            data = urllib2.urlopen(url).read()
+            data = urllib.request.urlopen(url).read()
         except:
             import traceback
             traceback.print_exc()
@@ -97,7 +97,7 @@ class HTTPMonitoringTests(unittest.TestCase):
         self.assertTrue("file_version" in data)
         self.assertTrue("launch_location" in data)
         self.assertTrue("dir_version" in data)
-        print data
+        print(data)
 
     def test_logs_list_json(self):
         data = self.run_check(['--cpu=.2', "--ensure-alive",
@@ -150,7 +150,7 @@ class HTTPMonitoringTests(unittest.TestCase):
                               output_format="json",
                               stop_server=False)
 
-        print data
+        print(data)
 
         filename = data["stdout.0"]['url']
 

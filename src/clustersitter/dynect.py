@@ -1,7 +1,7 @@
 import logging
 from dynect_client import DynectDNSClient
 
-from dnsprovider import DNSProvider
+from .dnsprovider import DNSProvider
 
 logger = logging.getLogger(__name__)
 

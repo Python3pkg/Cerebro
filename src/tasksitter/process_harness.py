@@ -11,7 +11,7 @@ import sys
 import threading
 import time
 
-import process
+from . import process
 
 
 class ProcessHarness(object):
@@ -70,7 +70,7 @@ class ProcessHarness(object):
         self.stop_running = True
         self.child_running = False
         self.terminate_child()
-        print simplejson.dumps(self.logmanager.get_logfile_names())
+        print(simplejson.dumps(self.logmanager.get_logfile_names()))
         os._exit(0)
 
     def start_process(self):
@@ -133,7 +133,7 @@ class ProcessHarness(object):
             for constraint in self.constraints:
                 if constraint.check_violation(self.child_proc):
                     if self.child_violation_occured(constraint):
-                        print "Restarting child command %s" % self.command
+                        print("Restarting child command %s" % self.command)
                         self.start_process()
                         restarted = True
 
@@ -144,7 +144,7 @@ class ProcessHarness(object):
                 for constraint in self.constraints:
                     if str(constraint) == "LivingConstraint":
                         if self.child_violation_occured(constraint):
-                            print "Restarting child command %s" % self.command
+                            print("Restarting child command %s" % self.command)
                             self.start_process()
                             restarted = True
 
@@ -153,8 +153,8 @@ class ProcessHarness(object):
                 if not restarted:
                     # There is no living constraint and child is dead,
                     # so set running to false
-                    print "Child exited on its own, not asked to " + \
-                        "restart it, exiting"
+                    print("Child exited on its own, not asked to " + \
+                        "restart it, exiting")
                     self.child_running = False
                     return
 
@@ -167,7 +167,7 @@ class ProcessHarness(object):
           True means the process should be restarted
           False means the caller should take no action
         """
-        print "Violated Constraint %s" % str(violated_constraint)
+        print("Violated Constraint %s" % str(violated_constraint))
         if violated_constraint.kill_on_violation:
             self.child_proc.force_exit()
 
@@ -205,7 +205,7 @@ class ProcessHarness(object):
             if newcode:
                 code = newcode
 
-            print "Child %s exited %s" % (self.child_proc.pid, code)
+            print("Child %s exited %s" % (self.child_proc.pid, code))
             time.sleep(.1)
 
         return code

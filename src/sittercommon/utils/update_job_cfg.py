@@ -22,23 +22,23 @@ def add_config_from_file(clustersitter_url, filename):
     try:
         jobs = json.load(open(filename))
     except:
-        print "Error opening config file %s" % filename
+        print("Error opening config file %s" % filename)
         import traceback
         traceback.print_exc()
         return
 
-    print "%s/add_job" % clustersitter_url
+    print("%s/add_job" % clustersitter_url)
     for job in jobs:
         data = {'data': json.dumps(job)}
         resp = requests.post("%s/add_job" % clustersitter_url, data=data)
-        print "Response for %s: %s" % (
+        print("Response for %s: %s" % (
             job['task_configuration']['name'],
-            resp.content)
+            resp.content))
 
 
 def run_command(clustersitter_url=None,
                 job_config=None):
-    if isinstance(job_config, basestring):
+    if isinstance(job_config, str):
         add_config_from_file(clustersitter_url, job_config)
     else:
         for filename in job_config:

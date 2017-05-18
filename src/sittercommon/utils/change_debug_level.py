@@ -21,7 +21,7 @@ def get_parser(parser):
 
 def run_command(clustersitter_url, level):
     data = {'data': json.dumps({'level': level})}
-    print "%s/update_idle_limit" % clustersitter_url
+    print("%s/update_idle_limit" % clustersitter_url)
     resp = requests.post("%s/update_logging_level" % clustersitter_url,
                          data=data)
-    print resp.content
+    print(resp.content)

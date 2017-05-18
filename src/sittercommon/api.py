@@ -40,7 +40,7 @@ class ClusterState(object):
         url = "%s/overview?nohtml=1&format=json&compress=1" % self.url
         # 3 attempts, since sometimes downloading json is a bit flaky
         data = None
-        for _ in xrange(3):
+        for _ in range(3):
             response = requests.get(url)
             if response.status_code != 200:
                 continue
@@ -82,7 +82,7 @@ class ClusterState(object):
 
     def get_machines_for_job(self, job):
         machines = []
-        for machine_list in job.fill_machines.values():
+        for machine_list in list(job.fill_machines.values()):
             for machine in machine_list:
                 host, ip = machine.split(':')
                 machines.append(self.get_machine(host))

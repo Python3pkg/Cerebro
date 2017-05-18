@@ -7,7 +7,7 @@ from boto import ec2
 
 from clustersitter.machineconfig import MachineConfig
 from clustersitter.eventmanager import ClusterEventManager
-from machineprovider import MachineProvider
+from .machineprovider import MachineProvider
 
 logger = logging.getLogger(__name__)
 
@@ -109,7 +109,7 @@ class AmazonEC2(MachineProvider):
         closest_type = 'm1.large'
         closest_amount = 1000000
         if mem_per_job:
-            for itype, perf in self.instance_types.items():
+            for itype, perf in list(self.instance_types.items()):
                 if perf[3] != 64:
                     continue
 
@@ -119,7 +119,7 @@ class AmazonEC2(MachineProvider):
                     closest_type = itype
 
         instance_type = closest_type
-        print instance_type
+        print(instance_type)
         ClusterEventManager.handle(
             "Spinning up %s amazon instances of type %s..." % (cpus,
                                                                instance_type))
@@ -184,7 +184,7 @@ class AmazonEC2(MachineProvider):
     def get_machine_list(self):
         self._initialize_connections()
         machine_list = []
-        for conn in self.connections.values():
+        for conn in list(self.connections.values()):
             reservations = conn.get_all_instances()
             if reservations:
                 for reservation in reservations:
@@ -215,7 +215,7 @@ class AmazonEC2(MachineProvider):
         #self.zones = [u'eu-west-1a', u'eu-west-1b', u'eu-west-1c', u'sa-east-1a', u'sa-east-1b', u'us-east-1a', u'us-east-1b', u'us-east-1c', u'us-east-1d', u'ap-northeast-1a', u'ap-northeast-1b', u'us-west-2a', u'us-west-2b', u'us-west-1b', u'us-west-1c', u'ap-southeast-1a', u'ap-southeast-1b']
 
         self._initialize_connections()
-        for conn in self.connections.values():
+        for conn in list(self.connections.values()):
             zones = conn.get_all_zones()
             for zone in zones:
                 self.connection_by_zone[zone.name] = conn

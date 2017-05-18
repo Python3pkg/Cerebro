@@ -12,7 +12,7 @@ class Output(object):
 
     def echo(self, msg):
         if not self.quiet:
-            print msg
+            print(msg)
 
     def stderr(self, msg):
         if not self.quiet:

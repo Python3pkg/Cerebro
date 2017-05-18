@@ -19,7 +19,7 @@ def get_parser(parser):
 
 def run_command(clustersitter_url, idle_limit):
     data = {'data': json.dumps({'idle_count_per_zone': idle_limit})}
-    print "%s/update_idle_limit" % clustersitter_url
+    print("%s/update_idle_limit" % clustersitter_url)
     resp = requests.post("%s/update_idle_limit" % clustersitter_url,
                          data=data)
-    print resp.content
+    print(resp.content)

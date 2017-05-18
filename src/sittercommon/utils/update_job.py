@@ -30,8 +30,8 @@ def run_command(clustersitter_url=None,
                 job_name=None,
                 version=None):
 
-    print "%s/update_job" % clustersitter_url
+    print("%s/update_job" % clustersitter_url)
     data = {'data': json.dumps({'job_name': job_name,
                                 'version': version})}
     resp = requests.post("%s/update_job" % clustersitter_url, data=data)
-    print resp.content
+    print(resp.content)

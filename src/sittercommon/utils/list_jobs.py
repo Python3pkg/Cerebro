@@ -17,6 +17,6 @@ def run_command(clustersitter_url=None):
     state = ClusterState(clustersitter_url)
     state.reload()
     for job in state.jobs:
-        print "%s - %s instances" % (
+        print("%s - %s instances" % (
             job.name,
-            sum([len(v) for v in job.fill_machines.values()]))
+            sum([len(v) for v in list(job.fill_machines.values())])))

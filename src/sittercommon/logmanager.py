@@ -34,8 +34,8 @@ class LogManager(object):
             self.stdout_location)
         stderr_loc = self._calculate_filename(
             self.stderr_location, True)
-        print "Redirecting sitter output to %s, stderr: %s" % (
-            stdout_loc, stderr_loc)
+        print("Redirecting sitter output to %s, stderr: %s" % (
+            stdout_loc, stderr_loc))
 
         self.add_logfile("stdout", stdout_loc)
         self.add_logfile("stderr", stderr_loc)

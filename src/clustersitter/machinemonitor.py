@@ -145,9 +145,9 @@ class MachineMonitor:
 
                 logger.debug("Pull Failures: %s" % ([
                     (m.hostname, count) for m, count in
-                    self.pull_failures.items()]))
+                    list(self.pull_failures.items())]))
 
-                for machine, count in self.pull_failures.items():
+                for machine, count in list(self.pull_failures.items()):
                     if count >= self.failure_threshold:
                         self.monitored_machines.remove(machine)
                         del self.pull_failures[machine]

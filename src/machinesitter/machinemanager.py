@@ -8,8 +8,8 @@ import time
 
 import sittercommon.http_monitor as http_monitor
 import sittercommon.logmanager as logmanager
-import machinestats
-import taskmanager
+from . import machinestats
+from . import taskmanager
 
 
 class MachineManager(object):
@@ -56,13 +56,13 @@ class MachineManager(object):
         self.http_monitor.add_handler('/load_config',
                                       self.remote_load_config)
 
-        print "Adding signals"
+        print("Adding signals")
         signal.signal(signal.SIGTERM, self.exit_now)
         signal.signal(signal.SIGINT, self.exit_now)
 
     def exit_now(self, *_):
-        print "Caught Control-C, killing children and exiting"
-        for task in self.tasks.values():
+        print("Caught Control-C, killing children and exiting")
+        for task in list(self.tasks.values()):
             if task.is_running():
                 task.stop()
 
@@ -78,7 +78,7 @@ class MachineManager(object):
             if opt in args:
                 definition[opt] = args[opt]
 
-        for k, v in definition.items():
+        for k, v in list(definition.items()):
             if v.lower() == 'true':
                 definition[k] = True
             if v.lower() == 'false':
@@ -248,7 +248,7 @@ class MachineManager(object):
         self.should_stop = True
 
     def collect_old_task_logs(self, task):
-        for filename, fileloc in task.get_old_logfilenames().items():
+        for filename, fileloc in list(task.get_old_logfilenames().items()):
             self.logmanager.add_logfile("Terminated %s (%s @ %s) %s" % (
                     task.name,
                     task.command,
@@ -257,10 +257,10 @@ class MachineManager(object):
                     ), fileloc)
 
     def task_finished(self, task):
-        print "Task %s finished" % task.name
+        print("Task %s finished" % task.name)
         logs = task.stdall()
-        print "Task Stdout:\n %s" % logs[0]
-        print "Task Stderr:\n %s" % logs[1]
+        print("Task Stdout:\n %s" % logs[0])
+        print("Task Stderr:\n %s" % logs[1])
         self.collect_old_task_logs(task)
 
     def restart_task(self, task):
@@ -270,8 +270,8 @@ class MachineManager(object):
 
     def _run(self):
         self.http_monitor.start()
-        print "Machine Sitter Monitor started at " + \
-            "http://localhost:%s" % self.http_monitor.port
+        print("Machine Sitter Monitor started at " + \
+            "http://localhost:%s" % self.http_monitor.port)
 
         stdout_loc = self.logmanager._calculate_filename(
             self.logmanager.stdout_location)
@@ -283,8 +283,8 @@ class MachineManager(object):
         if self.daemon:
             self.logmanager.setup_all()
 
-        for task in self.tasks.values():
-            print "Initializing %s" % task.name
+        for task in list(self.tasks.values()):
+            print("Initializing %s" % task.name)
             task.initialize()
             self.logmanager.add_logfile(
                 "%s-stdout" % task.name, task.sitter_stdout)
@@ -293,10 +293,10 @@ class MachineManager(object):
                 "%s-stderr" % task.name, task.sitter_stderr)
 
         while True:
-            for task in self.tasks.values():
+            for task in list(self.tasks.values()):
                 if task.was_started and not task.is_running():
-                    print "%s: started: %s, running: %s" % (
-                        task, task.was_started, task.is_running())
+                    print("%s: started: %s, running: %s" % (
+                        task, task.was_started, task.is_running()))
                     self.task_finished(task)
                     if not task.allow_exit:
                         self.restart_task(task)

@@ -2,8 +2,8 @@ import logging
 import time
 
 from datetime import datetime, timedelta
-from eventmanager import ClusterEventManager
-from jobfiller import JobFiller
+from .eventmanager import ClusterEventManager
+from .jobfiller import JobFiller
 
 logger = logging.getLogger(__name__)
 
@@ -45,13 +45,13 @@ class ProductionJob(object):
         self.deployment_layout = deployment_layout
 
         self.fillers = {}
-        for zone in self.deployment_layout.keys():
+        for zone in list(self.deployment_layout.keys()):
             self.fillers[zone] = []
             self.currently_spawning[zone] = 0
 
         #!MACHINEASSUMPTION!
         # Hack to make num_machines == num_cpu, for now.
-        for zone in self.deployment_layout.keys():
+        for zone in list(self.deployment_layout.keys()):
             self.deployment_layout[zone]['num_machines'] = \
                 self.deployment_layout[zone]['cpu']
 
@@ -74,7 +74,7 @@ class ProductionJob(object):
         return obj
 
     def get_shared_fate_zones(self):
-        return self.deployment_layout.keys()
+        return list(self.deployment_layout.keys())
 
     def get_num_required_machines_in_zone(self, zone):
         """
@@ -119,7 +119,7 @@ class ProductionJob(object):
         self.recipe_options['version'] = version
 
         machines_by_zone = state.get_machines()
-        for zone, machines in machines_by_zone.items():
+        for zone, machines in list(machines_by_zone.items()):
             job_machines = []
             for machine in machines:
                 tasks = machine.get_running_tasks()
@@ -146,7 +146,7 @@ class ProductionJob(object):
 
     def find_dependent_jobs(self):
         dependent_jobs = []
-        for job in self.sitter.state.jobs.values():
+        for job in list(self.sitter.state.jobs.values()):
             if job.linked_job == self.name:
                 dependent_jobs.append(job)
 
@@ -289,7 +289,7 @@ class ProductionJob(object):
             time.sleep(0.5)
 
         # Clear out finished fillers after 5 minutes
-        for zone, fillers in self.fillers.items():
+        for zone, fillers in list(self.fillers.items()):
             for filler in fillers:
                 now = datetime.now()
                 if (filler.is_done() and

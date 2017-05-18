@@ -54,7 +54,7 @@ class StatsCollector(object):
             'num_task_starts': self.harness.start_count,
         }
 
-        for constraint, count in self.harness.violations.items():
+        for constraint, count in list(self.harness.violations.items()):
             data['violated_%s' % constraint] = count
 
         data['cpu_usage'] = self.harness.child_proc.cpu_usage

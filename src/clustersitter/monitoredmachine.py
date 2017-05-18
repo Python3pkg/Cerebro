@@ -143,7 +143,7 @@ class MonitoredMachine(HasMachineSitter):
         if not self.datamanager:
             return []
 
-        return [task for task in self.datamanager.tasks.values()
+        return [task for task in list(self.datamanager.tasks.values())
                 if task["running"]]
 
     def start_task(self, job):
@@ -190,7 +190,7 @@ class MonitoredMachine(HasMachineSitter):
         machine_data['url'] = self.datamanager.url
         machine_data['hostname'] = self.hostname
         machine_data['tasks'] = self.get_tasks()
-        for task in machine_data['tasks'].values():
+        for task in list(machine_data['tasks'].values()):
             # task is running
             if 'monitoring' in task:
                 filenum = int(task.get('num_task_starts', 1))

@@ -13,7 +13,7 @@ import os
 import sys
 
 from clustersitter import ClusterSitter
-from machineconfig import MachineConfig
+from .machineconfig import MachineConfig
 from sittercommon import arg_parser
 
 
@@ -49,7 +49,7 @@ def daemonize():
     sys.stderr.flush()
     sys.stdin.close()
 
-    print "Sitter PID: %s" % os.getpid()
+    print("Sitter PID: %s" % os.getpid())
 
 
 def main(sys_args=None):
@@ -65,9 +65,9 @@ def main(sys_args=None):
         __import__(settings_module)
         settings = sys.modules[settings_module]
     except:
-        print "Couldn't find settings module %s" % settings_module
-        print "Please set the CLUSTERSITTER_SETTINGS environmental " + \
-            "variable an appropriate clustersitter settings module"
+        print("Couldn't find settings module %s" % settings_module)
+        print("Please set the CLUSTERSITTER_SETTINGS environmental " + \
+            "variable an appropriate clustersitter settings module")
         sys.exit(1)
 
     launch_location = os.getcwd()
@@ -102,13 +102,13 @@ def main(sys_args=None):
     while True:
         try:
             for index, name in enumerate(sitter.logfiles):
-                print "%s. %s" % (index, name)
-            num = raw_input("Chose a log to view: ")
+                print("%s. %s" % (index, name))
+            num = input("Chose a log to view: ")
             try:
                 num = int(num)
                 os.system("tail -f %s" % (sitter.logfiles[num]))
             except:
                 pass
         except KeyboardInterrupt:
-            print "Caught Control-C, exiting"
+            print("Caught Control-C, exiting")
             os._exit(0)

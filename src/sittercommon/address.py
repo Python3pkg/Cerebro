@@ -6,7 +6,7 @@ import re
 import socket
 import time
 import unittest
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 
 __all__ = ['ExternalAddress', 'SimpleAddressLookup']
@@ -95,7 +95,7 @@ class ExternalAddress(object):
             on failure or timeout.
         """
         try:
-            return urllib2.urlopen(uri, timeout=self.timeout).read()
+            return urllib.request.urlopen(uri, timeout=self.timeout).read()
         except:
             return None
 

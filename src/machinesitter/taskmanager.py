@@ -82,7 +82,7 @@ class TaskManager(object):
 
     def get_old_logfilenames(self):
         stdout = open(self.sitter_stdout).readlines()
-        print stdout
+        print(stdout)
         try:
             return simplejson.loads(stdout[-1])
         except:
@@ -98,7 +98,7 @@ class TaskManager(object):
         return self.used_pids[-1]
 
     def stop(self):
-        print "Stopping %s" % self.name
+        print("Stopping %s" % self.name)
         self.was_started = False
 
         while self.is_running():
@@ -142,7 +142,7 @@ class TaskManager(object):
         args.append("--stdout-location=%s" % self.stdout_location)
         args.append("--stderr-location=%s" % self.stderr_location)
 
-        print "Executing command %s" % args
+        print("Executing command %s" % args)
 
         self.process = subprocess.Popen(
             args,
@@ -152,6 +152,6 @@ class TaskManager(object):
         self.was_started = True
         self.used_pids.append(self.process.pid)
 
-        print "Task '%s' Started.  Task Monitoring At: http://localhost:%s" % (
+        print("Task '%s' Started.  Task Monitoring At: http://localhost:%s" % (
             self.command,
-            self.http_monitoring_port)
+            self.http_monitoring_port))

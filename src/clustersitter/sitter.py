@@ -6,25 +6,25 @@ import threading
 from datetime import datetime
 from logging import FileHandler
 
-import actions
-import clusterstate
-import deploymentrecipe
-import dynect
-import eventmanager
-import jobfiller
-import machinemonitor
-import monitoredmachine
-import productionjob
-import providers.aws
+from . import actions
+from . import clusterstate
+from . import deploymentrecipe
+from . import dynect
+from . import eventmanager
+from . import jobfiller
+from . import machinemonitor
+from . import monitoredmachine
+from . import productionjob
+from . import providers.aws
 import sittercommon.machinedata
 
-from clusterstate import ClusterState
-from clusterstats import ClusterStats
-from eventmanager import ClusterEventManager
-from machinemonitor import MachineMonitor
-from monitoredmachine import MonitoredMachine
-from productionjob import ProductionJob
-from providers.aws import AmazonEC2
+from .clusterstate import ClusterState
+from .clusterstats import ClusterStats
+from .eventmanager import ClusterEventManager
+from .machinemonitor import MachineMonitor
+from .monitoredmachine import MonitoredMachine
+from .productionjob import ProductionJob
+from .providers.aws import AmazonEC2
 from sittercommon import http_monitor
 from sittercommon import logmanager
 
@@ -257,7 +257,7 @@ class ClusterSitter(object):
             return recipe_class
 
         recipe_cls = None
-        if isinstance(recipe_class, basestring):
+        if isinstance(recipe_class, str):
             try:
                 recipe_cls = __import__(
                     recipe_class, globals(), locals())
@@ -447,7 +447,7 @@ class ClusterSitter(object):
         if aws.usable():
             self.state.add_provider('aws', aws)
 
-        for provider in self.state.get_providers().values():
+        for provider in list(self.state.get_providers().values()):
             # Note: add_machines() has to be called AFTER the monitors
             # are initialized.
             logger.info(

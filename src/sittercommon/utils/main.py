@@ -58,12 +58,12 @@ def main(sys_args=None):
     args = parser.parse_args(sys_args)
 
     if not args.command:
-        print "No Command Given"
-        print parser.print_help()
+        print("No Command Given")
+        print(parser.print_help())
         sys.exit(0)
 
     if not args.clustersitter_url:
-        print "Please pass a clustersitter URL the first time you run cerebro"
+        print("Please pass a clustersitter URL the first time you run cerebro")
         sys.exit(0)
 
     if args.quiet:

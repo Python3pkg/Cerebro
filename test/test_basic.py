@@ -11,7 +11,7 @@ class BasicTests(unittest.TestCase):
     def run_check(self, args, retval=0):
         try:
             main.main(args, allow_spam=True)
-        except SystemExit, e:
+        except SystemExit as e:
             self.assertEqual(e.code, retval)
 
     def test_stdout_redirect(self):

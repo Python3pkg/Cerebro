@@ -7,7 +7,7 @@ and stopping them at the whim of an administrator.
 """
 
 import sittercommon.arg_parser as argparse
-import machinemanager
+from . import machinemanager
 
 
 import os
@@ -54,7 +54,7 @@ def daemonize():
     sys.stderr.flush()
     sys.stdin.close()
 
-    print "Sitter PID: %s" % os.getpid()
+    print("Sitter PID: %s" % os.getpid())
 
 
 def main(sys_args=None):
@@ -67,7 +67,7 @@ def main(sys_args=None):
     args = parse_args(sys_args)
 
     if args.daemon:
-        print "Daemonizing"
+        print("Daemonizing")
         daemonize()
 
     if args.taskfile:

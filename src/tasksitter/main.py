@@ -17,9 +17,9 @@ import sys
 import sittercommon.arg_parser as argparse
 import sittercommon.http_monitor as http_monitor
 import sittercommon.logmanager as logmanager
-import constraints
-import process_harness
-import stats_collector
+from . import constraints
+from . import process_harness
+from . import stats_collector
 
 
 def run_command_with_harness(command, args, constraints_list):
@@ -157,7 +157,7 @@ def main(sys_args=None, wait_for_child=True, allow_spam=False):
     if not sys_args:
         sys_args = sys.argv[1:]
 
-    print sys_args
+    print(sys_args)
 
     args = parse_args(sys_args)
     constraints_list = build_constraints(args)
@@ -180,7 +180,7 @@ def main(sys_args=None, wait_for_child=True, allow_spam=False):
     if wait_for_child:
         exit_code = harness.wait_for_child_to_finish()
 
-        print simplejson.dumps(harness.logmanager.get_logfile_names())
+        print(simplejson.dumps(harness.logmanager.get_logfile_names()))
 
         if httpd and not args.keep_http_running:
             httpd.stop()

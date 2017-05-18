@@ -3,7 +3,7 @@ import logging
 from threading import Thread
 
 try:
-    from Queue import Empty, Full, Queue
+    from queue import Empty, Full, Queue
     (Empty, Full, Queue)  # pyflakes fix
 except ImportError:
     from queue import Empty, Full, Queue
@@ -251,7 +251,7 @@ class ClusterActionManager(object):
                 else:
                     logger.error("%: failed to start action" % action)
 
-        for name, queue in dict(self.queues).iteritems():
+        for name, queue in dict(self.queues).items():
             if not queue.is_running() and queue.is_empty():
                 del self.queues[name]
 
@@ -263,7 +263,7 @@ class ClusterActionManager(object):
         """
         Signal all actions to stop.
         """
-        for queue in self.queues.values():
+        for queue in list(self.queues.values()):
             queue.stop()
         for runner in self.runners:
             runner.stop()
@@ -279,7 +279,7 @@ class ClusterActionManager(object):
             continue to run.
         """
         running = True
-        for queue in self.queues.values():
+        for queue in list(self.queues.values()):
             running = running and queue.join(timeout)
         for runner in self.runners:
             running = running and runner.join(timeout)

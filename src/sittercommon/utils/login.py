@@ -72,7 +72,7 @@ def login(state, machine, command=None):
         remote_cmd)
 
     # Try 3 times to login
-    for i in xrange(3):
+    for i in range(3):
         output.stderr("%s\n" % cmd)
         start = time.time()
         ret = os.system(cmd)
@@ -109,7 +109,7 @@ def run_command(clustersitter_url=None,
             for index, option in enumerate(options):
                 output.echo("%s. %s" % (index, option))
 
-            result = raw_input("Chose a machine or job to log into: ")
+            result = input("Chose a machine or job to log into: ")
             try:
                 selected = options[int(result)]
             except:

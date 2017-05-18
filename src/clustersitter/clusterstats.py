@@ -3,7 +3,7 @@ import threading
 
 from tenjin.helpers import *
 
-from eventmanager import ClusterEventManager
+from .eventmanager import ClusterEventManager
 from tasksitter.stats_collector import StatsCollector
 
 
@@ -28,10 +28,10 @@ class ClusterStats(StatsCollector):
         job_fill, job_machine_fill = state.current_jobs.get_job_fill()
         idle_machines = []
         zoned_idle_machines = state.get_machines(idle=True)
-        for zone, machines in zoned_idle_machines.iteritems():
+        for zone, machines in zoned_idle_machines.items():
             idle_machines.extend(machines)
 
-        data['providers'] = state.get_providers().keys()
+        data['providers'] = list(state.get_providers().keys())
         data['machines_by_zone'] = str(state.get_machines())
         data['job_fill'] = str(job_fill)
         data['idle_machines'] = str(state.get_machines(idle=True))
@@ -47,7 +47,7 @@ class ClusterStats(StatsCollector):
                 repr(m) for m in monitor.monitored_machines]
             monitor_data['add_queue'] = [repr(m) for m in monitor.add_queue]
             monitor_data['pull_failures'] = dict([
-                (str(k), v) for k, v in monitor.pull_failures.iteritems()])
+                (str(k), v) for k, v in monitor.pull_failures.items()])
             monitor_data['failure_threshold'] = monitor.failure_threshold
             monitor_data['number'] = monitor.number
             monitors.append(monitor_data)
@@ -66,7 +66,7 @@ class ClusterStats(StatsCollector):
         data['monitors'] = monitors
 
         jobs = []
-        check_jobs = state.jobs.values() + state.repair_jobs.values()
+        check_jobs = list(state.jobs.values()) + list(state.repair_jobs.values())
         for job in check_jobs:
             job_data = {}
             job_data['name'] = job.name
@@ -77,7 +77,7 @@ class ClusterStats(StatsCollector):
             job_data['recipe_options'] = job.recipe_options
             job_data['linked_job'] = job.linked_job
             fillers = []
-            for filler_list in job.fillers.values():
+            for filler_list in list(job.fillers.values()):
                 for filler in filler_list:
                     filler_data = {}
                     filler_data['zone'] = filler.zone
@@ -91,7 +91,7 @@ class ClusterStats(StatsCollector):
             job_data['fill'] = job_fill.get(job.name, {})
 
             fill_machines = job_machine_fill.get(job.name, {})
-            for zone in fill_machines.keys():
+            for zone in list(fill_machines.keys()):
                 fill_machines[zone] = [str(m) for m in fill_machines[zone]]
 
             job_data['fill_machines'] = fill_machines

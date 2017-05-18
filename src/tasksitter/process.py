@@ -37,14 +37,14 @@ class Process(object):
         except OSError:
             return False
         except KeyboardInterrupt:
-            print "WAA" * 100
+            print("WAA" * 100)
             self.force_exit()
 
     def force_exit(self):
         """
         Send a SIGKILL to the child process
         """
-        print "Killing Process %s" % self.pid
+        print("Killing Process %s" % self.pid)
         try:
             os.kill(self.pid, signal.SIGKILL)
         except OSError:
@@ -105,7 +105,7 @@ class Process(object):
         # Best way I can figure to do this is to check ALL procs in
         # the kernel process table, sadface.
         cpu_usage = [0] * 7
-        for proc in self.proc_stats.keys():
+        for proc in list(self.proc_stats.keys()):
             usage = get_proc_cpu(int(proc), self.pid)
             for index, i in enumerate(usage):
                 cpu_usage[index] += i
@@ -147,7 +147,7 @@ class Process(object):
         # Best way I can figure to do this is to check ALL procs in
         # the kernel process table, sadface.
         mem_usage = [0, 0]
-        for proc in self.proc_stats.keys():
+        for proc in list(self.proc_stats.keys()):
             usage = get_proc_mem(proc, self.pid)
             mem_usage[0] += usage[0]
             mem_usage[1] += usage[1]

@@ -5,11 +5,11 @@ Cluster state tracking and maintenance.
 import logging
 import simplejson
 import time
-from actions import (
+from .actions import (
     AddTaskAction, ClusterActionManager, DecomissionMachineAction,
     DeployMachineAction, RedeployMachineAction, RemoveTaskAction,
     RestartTaskAction, StartTaskAction, StopTaskAction)
-from productionjob import ProductionJob
+from .productionjob import ProductionJob
 from threading import RLock, Thread
 
 logger = logging.getLogger(__name__)
@@ -84,7 +84,7 @@ class JobState(object):
         @return The flattened job set.
         """
         flat = set()
-        for name, task_items in self.tasks.iteritems():
+        for name, task_items in self.tasks.items():
             for task in task_items:
                 if task['machine'] is not None:
                     flat.add((task['zone'], task['machine'], name))
@@ -97,7 +97,7 @@ class JobState(object):
         @param machine The machine to check.
         @return True if the machine is idle or False.
         """
-        for task_items in self.tasks.values():
+        for task_items in list(self.tasks.values()):
             for task in task_items:
                 if task['machine'] == machine:
                     return False
@@ -109,7 +109,7 @@ class JobState(object):
 
         @param machine The machine to remove tasks from.
         """
-        for name in self.tasks.keys():
+        for name in list(self.tasks.keys()):
             for task in list(self.tasks[name]):
                 if task['machine'] == machine:
                     self.tasks[name].remove(task)
@@ -176,7 +176,7 @@ class JobState(object):
         else:
             task_items = self.tasks
 
-        for name, tasks in task_items.iteritems():
+        for name, tasks in task_items.items():
             for task in tasks:
                 zone = task['zone']
                 machine = task['machine']
@@ -196,7 +196,7 @@ class JobState(object):
             the machine is not present.
         """
         names = set()
-        for name, tasks in self.tasks.iteritems():
+        for name, tasks in self.tasks.items():
             for task in tasks:
                 if task['machine'] == machine:
                     if status is None or status == task['status']:
@@ -300,7 +300,7 @@ class JobState(object):
             values are the number of machines required.
         """
         required = {}
-        for name, tasks in self.tasks.iteritems():
+        for name, tasks in self.tasks.items():
             for task in tasks:
                 zone = task['zone']
                 if zone not in required:
@@ -350,7 +350,7 @@ class JobState(object):
         """
         job_fill = {}
         job_fill_machines = {}
-        for name, tasks in self.tasks.iteritems():
+        for name, tasks in self.tasks.items():
             job_fill[name] = {}
             job_fill_machines[name] = {}
             for task in tasks:
@@ -460,7 +460,7 @@ class ClusterState(object):
 
         @return A list of active zone names.
         """
-        return self.zones.keys()
+        return list(self.zones.keys())
 
     def get_providers(self):
         """
@@ -695,7 +695,7 @@ class ClusterState(object):
             return False
         if not machine.has_loaded_data():
             machine.datamanager.reload()
-        for task in machine.get_tasks().values():
+        for task in list(machine.get_tasks().values()):
             name = task['name']
             zone = self.get_machine_zone(machine)
             task_status = JobState.Running
@@ -819,7 +819,7 @@ class ClusterState(object):
                 job_chains[task] = self.job_chains[task]
             self.desired_jobs.remove_tasks(task, [machine])
 
-        for master in job_chains.keys():
+        for master in list(job_chains.keys()):
             self.desired_jobs.add_tasks(master, zone, [], 1)
 
     @lock
@@ -909,7 +909,7 @@ class ClusterState(object):
         @return A list of job names that were removed.
         """
         tasks = []
-        if isinstance(job, basestring):
+        if isinstance(job, str):
             tasks.append(job)
             job = self.jobs.get(job)
         else:
@@ -928,7 +928,7 @@ class ClusterState(object):
         """
         Persist jobs to the jobs file.
         """
-        jobs = [j for j in self.jobs.values() if j.persistent]
+        jobs = [j for j in list(self.jobs.values()) if j.persistent]
         with open(self.job_file, 'w') as fd:
             fd.write(simplejson.dumps([j.to_dict() for j in jobs]))
 
@@ -1020,14 +1020,14 @@ class ClusterState(object):
         job_machines = self.current_jobs.get_task_machines()
 
         # Remove missing machines.
-        for zone, machines in job_machines.iteritems():
+        for zone, machines in job_machines.items():
             for machine in machines:
                 if (zone not in zoned_machines or
                         machine not in zoned_machines[zone]):
                     self.current_jobs.remove_machine(machine)
 
         # Update tasks.
-        for zone, machines in zoned_machines.iteritems():
+        for zone, machines in zoned_machines.items():
             for machine in machines:
                 if not machine.is_initialized():
                     logger.info(
@@ -1037,7 +1037,7 @@ class ClusterState(object):
 
                 expected_tasks = self.current_jobs.get_machine_tasks(machine)
                 actual_tasks = {}
-                for actual_task in machine.get_tasks().values():
+                for actual_task in list(machine.get_tasks().values()):
                     if actual_task['running']:
                         actual_tasks[actual_task['name']] = JobState.Running
                     else:
@@ -1062,7 +1062,7 @@ class ClusterState(object):
         """
         # Build job chains.
         job_chains = {}
-        for name, job in self.jobs.iteritems():
+        for name, job in self.jobs.items():
             master = self._get_master_job(job)
             if not master:
                 continue
@@ -1078,10 +1078,10 @@ class ClusterState(object):
         desired job state.
         """
         # Assign chain tasks to machines.
-        for master, children in self.job_chains.iteritems():
+        for master, children in self.job_chains.items():
             # Find machines where the master is running.
             zoned_master_machines = self.desired_jobs.get_task_machines(master)
-            for zone, master_machines in zoned_master_machines.iteritems():
+            for zone, master_machines in zoned_master_machines.items():
                 for child in children:
                     # Assign child tasks.
                     machines = []
@@ -1093,8 +1093,8 @@ class ClusterState(object):
 
         # Assign idle machines to pending tasks.
         pending_tasks = self.desired_jobs.get_pending_tasks()
-        for zone, tasks in pending_tasks.iteritems():
-            for master, required in tasks.iteritems():
+        for zone, tasks in pending_tasks.items():
+            for master, required in tasks.items():
                 if required > 0:
                     master_job = self.get_job(master)
 
@@ -1160,12 +1160,12 @@ class ClusterState(object):
         if self.max_idle_per_zone >= 0:
             decomission = {}
             zoned_idle_machines = self.get_machines(idle=True)
-            for zone, idle_machines in zoned_idle_machines.iteritems():
+            for zone, idle_machines in zoned_idle_machines.items():
                 if len(idle_machines) > self.max_idle_per_zone:
                     count = len(idle_machines) - self.max_idle_per_zone
                     decomission[zone] = idle_machines[-count:]
 
-            for zone, machines in decomission.iteritems():
+            for zone, machines in decomission.items():
                 for machine in machines:
                     logger.info(
                         "decomissioning idle machine '%s'" %
@@ -1179,16 +1179,16 @@ class ClusterState(object):
         child job then we remove it if its master is no longer deployed to any
         machines. Also remove finished repair jobs.
         """
-        for job in self.jobs.values():
+        for job in list(self.jobs.values()):
             master = self._get_master_job(job)
             if (master and not self.desired_jobs.has_task(master.name) and
                     not self.current_jobs.has_task(master.name)):
                 del self.jobs[job.name]
         self.persist_jobs()
 
-        for name, job in dict(self.repair_jobs).iteritems():
+        for name, job in dict(self.repair_jobs).items():
             remove = True
-            for fillers in job.fillers.values():
+            for fillers in list(job.fillers.values()):
                 for filler in fillers:
                     # If there are fillers still running then leave it in.
                     if filler.state.get_state() != 8:
@@ -1202,7 +1202,7 @@ class ClusterState(object):
         Redeploy sitters to unreachable machines.
         """
         zoned_machines = self.get_machines()
-        for zone, machines in zoned_machines.iteritems():
+        for zone, machines in zoned_machines.items():
             for machine in machines:
                 if (not self.is_machine_monitored(machine) and
                         not self.get_machine_repair_job(machine)):

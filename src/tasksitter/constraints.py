@@ -19,7 +19,7 @@ class Constraint(object):
 
         Returns: True if in violation
         """
-        print "check generic violation %s" % child_proc.pid
+        print("check generic violation %s" % child_proc.pid)
         return 0
 
 
@@ -77,7 +77,7 @@ class CPUConstraint(Constraint):
         child_proc.update_usage(deep=True)
 
         if child_proc.cpu_usage > float(self.value):
-            print "CPU Limit Exceeded"
+            print("CPU Limit Exceeded")
             return True
 
         return False
@@ -101,7 +101,7 @@ class MemoryConstraint(Constraint):
         child_proc.update_usage(deep=True)
 
         if child_proc.mem_usage[1] > self.value:
-            print "Memory Limit Exceeded"
+            print("Memory Limit Exceeded")
             return True
         return False
 
